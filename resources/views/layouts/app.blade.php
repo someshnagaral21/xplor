@@ -32,5 +32,8 @@
 
     <!-- Footer -->
     @include('layouts.footer')
+    
+    <!-- Scripts -->
+    @yield('footer_scripts')
 </body>
 </html>
