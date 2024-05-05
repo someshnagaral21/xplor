@@ -12,5 +12,10 @@
         "laravel-vite-plugin": "^1.0",
         "sass": "^1.76.0",
         "vite": "^5.0"
+    },
+    "dependencies": {
+        "datatables.net-bs5": "^2.0.6",
+        "datatables.net-plugins": "^2.0.5",
+        "jquery": "^3.7.1"
     }
 }
