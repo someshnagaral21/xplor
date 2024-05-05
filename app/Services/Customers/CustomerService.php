@@ -2,6 +2,8 @@
 
 namespace App\Services\Customers;
 
+use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\Customer\CustomerRepositoryInterface;
 
@@ -64,6 +66,7 @@ class CustomerService
             return $this->customerRepository->find($id);
         }
 
+        //Log the validation error in future
         throw ValidationException::withMessages([
             'error' => 'Something went wrong',
         ]);
@@ -88,8 +91,86 @@ class CustomerService
             return $isDeleted;
         }
 
+        //Log the validation error in future
         throw ValidationException::withMessages([
             'error' => 'Something went wrong',
         ]);
+    }
+
+    /**
+     * Get the customer index pag related data
+     *
+     * @param array $getData
+     * @return array
+     */
+    public function getIndexData(array $getData): array
+    {
+        return [];
+    }
+
+    /**
+     * Get customer data for datatable
+     *
+     * @param array $request
+     * @return array
+     */
+    public function getCustomerDataTable(array $request): array
+    {
+        $draw = Arr::get($request, 'draw');
+        $start = Arr::get($request, 'start');
+        $rowperpage = Arr::get($request, 'length'); // Rows display per page
+
+        $orderArr = Arr::get($request, 'order', []);
+        $columnNameArr = Arr::get($request, 'columns');
+        $searchArr = Arr::get($request, 'search');
+
+        $columnIndex = Arr::get($orderArr, '0.column', '0'); // Column index
+        $columnName = $columnNameArr[$columnIndex]['data']; // Column name
+        $columnSortOrder = Arr::get($orderArr, '0.dir', 'asc');; // asc or desc
+        $searchValue = $searchArr['value']; // Search value
+
+        $filters = [
+            'sort_col' => $columnName,
+            'sort_order' => $columnSortOrder,
+            'search' => $searchValue,
+            'start' => $start,
+            'length' => $rowperpage,
+        ];
+
+        // Total records
+        $totalRecords = $this->customerRepository->getTotalCount();
+        $totalRecordsWithFilter = $this->customerRepository->getRecordCountWithFilter($filters);
+
+        // Fetch records
+        $records = $this->customerRepository->getRecords($filters);
+
+        $dataArray = $this->prepareDataTableData($records);
+
+        return [
+            'draw' => intval($draw),
+            'iTotalRecords' => $totalRecords,
+            'iTotalDisplayRecords' => $totalRecordsWithFilter,
+            'aaData' => $dataArray
+        ];
+    }
+
+    /**
+     * Prepare array for datatable
+     *
+     * @param Collection $records
+     * @return array
+     */
+    private function prepareDataTableData(Collection $records): array
+    {
+        $dataArray = [];
+        foreach ($records as $record) {
+            $dataArray[] = [
+                'id' => $record->id,
+                'name' => $record->name,
+                'email' => $record->email,
+            ];
+        }
+
+        return $dataArray;
     }
 }

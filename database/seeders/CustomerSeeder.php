@@ -12,6 +12,7 @@ class CustomerSeeder extends Seeder
      */
     public function run(): void
     {
+        //We can change this condition later on according to requirement
         if (Customer::count() < 5) {
             Customer::factory(5)->create();
         }

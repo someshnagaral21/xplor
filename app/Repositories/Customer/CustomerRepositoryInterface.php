@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Customer;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Repositories\BaseRepositoryInterface;
 
 /**
@@ -19,4 +20,27 @@ interface CustomerRepositoryInterface extends BaseRepositoryInterface
      * @return bool
      */
     public function isExists(int $id): bool;
+
+    /**
+     * Get total customer count
+     *
+     * @return integer
+     */
+    public function getTotalCount(): int;
+
+    /**
+     * Get record count with filter
+     *
+     * @param array $filters
+     * @return integer
+     */
+    public function getRecordCountWithFilter(array $filters): int;
+
+    /**
+     * Get paginated records of customers
+     *
+     * @param array $filters
+     * @return Collection
+     */
+    public function getRecords(array $filters): Collection;
 }
